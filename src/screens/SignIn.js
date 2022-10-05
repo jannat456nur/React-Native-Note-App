@@ -29,7 +29,7 @@ export default function SignIn({navigation}) {
             secureTextEntry
           />
         </View>
-   
+
       </View>
       <View style={styles.text}>
       <Button

@@ -4,7 +4,6 @@ import Button from "../components/Button";
 import Input from "../components/Input";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import {
-  setDoc,
   addDoc,
   collection,
   getDocs,
@@ -12,11 +11,8 @@ import {
   onSnapshot,
   query,
   where,
-  getFirestore,
 } from "firebase/firestore";
-import { async } from "@firebase/util";
 import { auth, db } from "../../App";
-import { showMessage } from "react-native-flash-message";
 
 const genderOptions = ["Male", "Female"];
 
@@ -28,53 +24,39 @@ export default function SignUp() {
   const [name, setName] = useState("");
 
   // const auth = getAuth();
-  
 
   // const signup = () => {
   //   createUserWithEmailAndPassword(auth, email, password)
-  //     .then((userCredential) => {
-  //       // Signed in
-  //       const docRef =  addDoc(collection(db,'users'),{
-  //         name:name,
-  //         age:age,
-  //         email:email,
-  //         gender:gender,
-  //         uid:result.user.uid,
-  //       })
-  //       const user = userCredential.user;
-  //       console.log(user, "user");
-  //       // ...
-  //     })
-  //     .catch((error) => {
-  //       const errorCode = error.code;
-  //       const errorMessage = error.message;
-  //       // ..
-  //     });
+  //   .then((userCredential) => {
+  //     // Signed in
+  //     const user = userCredential.user;
+  //     console.log(user,"user")
+  //     // ...
+  //   })
+  //   .catch((error) => {
+  //     const errorCode = error.code;
+  //     const errorMessage = error.message;
+  //     // ..
+  //   });
   // };
+
   const signup = async () => {
-    setLoading(true)
     try {
       const result = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
-      console.log("result", result);
-      const docRef = await addDoc(collection(db, "users"), {
+      console.log(result);
+      const docRef = await addDoc(collection(db, "user"), {
         name: name,
-        email: email,
         age: age,
+        email: email,
         gender: gender,
         uid: result.user.uid,
       });
-      setLoading(false);
     } catch (error) {
-      console.log("error", error);
-      showMessage({
-        message:"ERROR!",
-        type:'danger',
-      })
-      setLoading(false)
+      console.log(error, "error");
     }
   };
 
@@ -92,7 +74,7 @@ export default function SignUp() {
           Never forget your notes
         </Text>
         <View style={{ paddingHorizontal: 18, paddingVertical: 25 }}>
-          <Input placeholder="Email"autoCapitalize={'none'} onChangeText={(text) => setEmail(text)} />
+          <Input placeholder="Email" onChangeText={(text) => setEmail(text)} />
           <Input
             placeholder="Password"
             secureTextEntry
@@ -100,9 +82,7 @@ export default function SignUp() {
           />
           <Input
             placeholder="Full Name"
-            autoCapitalize={'words'}
             onChangeText={(text) => setName(text)}
-            
           />
           <Input placeholder="Age" onChangeText={(text) => setAge(text)} />
 
