@@ -1,6 +1,6 @@
 
 
-import { StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "./src/screens/Home";
@@ -10,7 +10,9 @@ import Edit from "./src/screens/Edit";
 import Create from "./src/screens/Create";
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import FlashMessage from "react-native-flash-message";
+import { useEffect, useState } from "react";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBpNP6MXJMjOusU1BwxkrFHk4fFwOW72o4",
@@ -38,24 +40,61 @@ const AppTheme = {
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const user = false; //not authenticated
+
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  // useEffect(()=>{
+  //   signOut(auth)
+  // })
+  // const user = false; //not authenticated
+
+  useEffect(()=>{
+    const authSubscription = onAuthStateChanged(auth,(user)=>{
+      if(user){
+        setUser(user)
+      }
+      else{
+        setUser(null)
+        // signOut(null)
+      }
+    })
+    return authSubscription
+
+  },[])
+  // if(loading){
+  //   return(
+  //     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+  //     <ActivityIndicator color="blue" size="large" />
+  //   </View>
+  //   )
+  // }
   return (
     
     <NavigationContainer theme={AppTheme}>
       <Stack.Navigator>
         {user ? (
           <>
-            <Stack.Screen name="Home" component={Home}></Stack.Screen>
-            <Stack.Screen name="Edit" component={Edit}></Stack.Screen>
-            <Stack.Screen name="Create" component={Create}></Stack.Screen>
+             <Stack.Screen name="Home" options={{ headerShown: false }}>
+              {(props) => <Home {...props} user={user} />}
+            </Stack.Screen>
+            <Stack.Screen name="create">
+              {(props) => <Create {...props} user={user} />}
+            </Stack.Screen>
+            <Stack.Screen name="edit" component={Edit}></Stack.Screen>
           </>
         ) : (
           <>
-            <Stack.Screen name="Signin" component={SignIn}></Stack.Screen>
+             <Stack.Screen
+              name="Signin"
+              component={SignIn}
+              options={{ headerShown: false }}
+            ></Stack.Screen>
             <Stack.Screen name="Signup" component={SignUp}></Stack.Screen>
           </>
         )}
       </Stack.Navigator>
+      <FlashMessage position="top" />
+      {/* set error */}
     </NavigationContainer>
   );
 }
